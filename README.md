@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+k# TrialDocs — Frontend
 
-## Getting Started
+Next.js interface for [TrialDocs](https://github.com/Vishesh559/trialdocs-backend), a retrieval-augmented question-answering tool for clinical trial protocols. Upload a protocol PDF, ask questions in plain language, and get answers grounded strictly in the document.
 
-First, run the development server:
+Deployed on AWS Amplify, connected directly to this GitHub repo — every push to `main` triggers an automatic rebuild.
+
+## Design
+
+The interface is styled as a document-review tool rather than a generic chat UI: a dark, document-annotation backdrop, monospace section markers (`§1`, `§2`, `§3`) instead of standard headings, a serif typeface for answer text (protocol prose is formal document material), and citations rendered as numbered margin tags — echoing how a real reviewed document gets annotated, rather than a plain "sources" list at the bottom.
+
+## Stack
+
+| Piece | Technology |
+|---|---|
+| Framework | Next.js (App Router), TypeScript |
+| Styling | Tailwind CSS |
+| Hosting | AWS Amplify |
+| Fonts | IBM Plex Mono, Source Serif 4, Inter |
+
+## Configuration
+
+The backend URL is read from an environment variable rather than hardcoded, so the same build works against a local backend in development and the deployed HTTPS backend in production:
+NEXT_PUBLIC_API_BASE=https://your-backend-url
+
+In Amplify, this is set under the app's environment variables. Locally, create a `.env.local` file with the same key.
+
+**Why HTTPS matters here specifically:** browsers block a page served over HTTPS from calling a plain-HTTP API (mixed-content policy). Since Amplify serves this frontend over HTTPS by default, the backend had to be placed behind Nginx with a Let's Encrypt certificate before the two could talk to each other in production — see the [backend README](https://github.com/Vishesh559/trialdocs-backend) for how that's set up.
+
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Vishesh559/trialdocs-frontend.git
+cd trialdocs-frontend
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create `.env.local`:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+NEXT_PUBLIC_API_BASE=http://127.0.0.1:8000
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Run:
+```bash
+npm run dev
+```
 
-## Learn More
+Requires the [backend](https://github.com/Vishesh559/trialdocs-backend) running (locally or deployed) to actually answer requests — the frontend alone has no logic of its own.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Backend repo: [trialdocs-backend](https://github.com/Vishesh559/trialdocs-backend) (FastAPI, RAG pipeline, deployed on EC2 + RDS)
